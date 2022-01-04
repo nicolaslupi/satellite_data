@@ -13,12 +13,6 @@ import pickle as pk
 from tqdm import tqdm
 current = os.getcwd()
 
-filename = current + '/SLTrack.ini'
-print('Retrieving Space-Track login data...')
-if os.path.exists(filename):
-  os.remove(filename)
-wget.download('https://drive.google.com/uc?export=download&id=1ja_1sgA4GXEoTTE8ypKe3pSqeJfw-kVb', 'SLTrack.ini')
-
 #%%
 """ Load what I've done so far """
 
