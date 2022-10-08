@@ -11,7 +11,7 @@ current = os.getcwd()
 PATH = os.path.join(current, 'databases')
 
 #%%
-if os.path.exists(current + '/databases'):
+if os.path.exists(PATH):
   pass
 else:
   if os.path.exists(current + '/databases.zip') == False:
