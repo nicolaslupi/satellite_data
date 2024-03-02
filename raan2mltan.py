@@ -1,3 +1,5 @@
+# Toma el archivo de payloads con información de Space Track y convierte RAAN a MLTAN
+
 #%%
 import numpy as np
 import pandas as pd

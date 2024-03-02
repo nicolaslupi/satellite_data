@@ -1,3 +1,5 @@
+# Agrega información obtenida de space track al archivo de payloads.
+
 #%%
 import numpy as np
 import pandas as pd

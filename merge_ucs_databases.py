@@ -1,3 +1,6 @@
+# Combina reportes de UCS contenidos en carpeta databases en un solo archivo
+# de manera de tener un sólo registro por payload.
+
 #%%
 import os
 import numpy as np
@@ -9,6 +12,7 @@ import wget
 from zipfile import ZipFile
 current = os.getcwd()
 PATH = os.path.join(current, 'databases')
+OUTPUT_FILE = 'merged_databases.xlsx'
 
 #%%
 if os.path.exists(PATH):
@@ -136,6 +140,7 @@ def load_databases(path):
 """ Merge Databases """
 def merge_databases( databases ):
   data = pd.concat(databases, ignore_index=True)
+  data['date'] = pd.to_datetime(data['date']) # Agrego para casos en que Date of Month viene como str
   data['year'] = data['date'].map(lambda fecha: fecha.year)
 
   data['dry_mass'] = pd.to_numeric(data['dry_mass'], errors='coerce')
@@ -147,6 +152,8 @@ def merge_databases( databases ):
   if any(greater_than_180):
     data.loc[ greater_than_180, 'GEO_long_degrees' ] -= 360
 
+  data['orbit_class'] = data['orbit_class'].str.upper() # Para caso LEo...
+
   data.loc[ (~pd.isna( data.orbit_type )) & (data.orbit_type.str.contains( 'Sun' )), 'orbit_type' ] = 'Sun-Synchronous'
   data.loc[ data.orbit_type == 'LEO/P', 'orbit_type' ] = 'Polar'
   data.loc[ data.orbit_type == 'LEO/I', 'orbit_type' ] = 'Non-Polar Inclined'
@@ -155,7 +162,13 @@ def merge_databases( databases ):
   data.loc[ data.orbit_type == 'Circular', 'orbit_type' ] = 'Intermediate'
   data.loc[ data.orbit_type == 'Retrograde', 'orbit_type' ] = np.nan
 
+  duplicates = list(data[data.cospar_norad.duplicated()].cospar_norad.unique()) # Remuevo duplicados de cospar + norad
+  print(f"Removing duplicates at COSPAR + NORAD level\n{duplicates}")
+  data.drop_duplicates(subset='cospar_norad', inplace=True)
+  data = data.reset_index(drop=True)
+
   return data
 
 data = merge_databases( load_databases( PATH ) )
-data.to_excel( 'merged_databases.xlsx', index=False )
+data.to_excel(OUTPUT_FILE, index=False )
+print(f"Merged datasets into {OUTPUT_FILE}")
